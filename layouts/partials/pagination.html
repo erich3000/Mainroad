@@ -1,8 +1,10 @@
-{{- $use_complex_pagination := (.Site.Params.pagination.use_complex | default false) }}
-{{- $use_first_and_last_item := (.Site.Params.pagination.use_first_and_last_item | default false) }}
-{{- $show_disabled_items := (.Site.Params.pagination.show_disabled_items | default false) }}
+{{ $use_complex_pagination := (.Site.Params.pagination.use_complex | default false) }}
+{{ $use_first_and_last_item := (.Site.Params.pagination.use_first_and_last_item | default false) }}
+{{ $show_disabled_items := (.Site.Params.pagination.show_disabled_items | default false) }}
+{{ $paginator := .Paginator }}
+{{ $index := 1 }}
 
-{{- if or (.Paginator.HasPrev) (.Paginator.HasNext) }}
+{{ if or (.Paginator.HasPrev) (.Paginator.HasNext) }}
 
 	<div class="pagination">
 
@@ -27,9 +29,11 @@
 
 
 		{{- if $use_complex_pagination }}
-			<span class="pagination__item pagination__item--current">
-				{{- .Paginator.PageNumber }}/{{ .Paginator.TotalPages -}}
-			</span>
+
+				<span class="pagination__item pagination__item--current">
+					{{- .Paginator.PageNumber }}/{{ .Paginator.TotalPages -}}
+				</span>
+
 		{{- else }}
 			<span class="pagination__item pagination__item--current">
 				{{- .Paginator.PageNumber }}/{{ .Paginator.TotalPages -}}
@@ -55,4 +59,73 @@
 		{{- end }}
 	</div>
 
-{{- end }}
+{{ end }}
+
+
+{{ $adjacent_links := 1 }}
+{{ $lower_gap := add $adjacent_links 3 }}
+{{ $upper_gap := sub $paginator.TotalPages (add $adjacent_links 2) }}
+{{ $lower :=  (sub $paginator.PageNumber $adjacent_links) }}
+
+{{ $upper :=  (add $paginator.PageNumber $adjacent_links) }}
+
+{{ $min_links := (add (mul $adjacent_links 2) 3) }}
+
+{{ if gt $paginator.TotalPages 1 }}
+<div class="page-holder">
+  <ul class="pagination">
+
+
+
+    {{ range $paginator.Pagers }}
+
+      {{ if gt $paginator.TotalPages $min_links }}
+
+        {{ $.Scratch.Set "page_number_flag" false }}
+
+        {{ if eq .PageNumber 1 }}
+          {{ $.Scratch.Set "page_number_flag" true }}
+        {{ end }}
+
+        {{ if eq .PageNumber 2 }}
+          {{ if gt $paginator.PageNumber $lower_gap }}
+            <li><span>...</span></li>
+          {{ else if eq $paginator.PageNumber $lower_gap }}
+            {{ $.Scratch.Set "page_number_flag" true }}
+          {{ end }}
+        {{ end }}
+
+        {{ if and (ge .PageNumber $lower) (le .PageNumber $upper) }}
+          {{ $.Scratch.Set "page_number_flag" true }}
+        {{ end }}
+
+        {{ if eq .PageNumber (sub $paginator.TotalPages 1) }}
+          {{ if lt $paginator.PageNumber $upper_gap }}
+            <li><span>...</span></li>
+          {{ else if eq $paginator.PageNumber $upper_gap }}
+            {{ $.Scratch.Set "page_number_flag" true }}
+          {{ end }}
+        {{ end }}
+
+        {{ if eq .PageNumber $paginator.TotalPages }}
+          {{ $.Scratch.Set "page_number_flag" true }}
+        {{ end }}
+
+      {{ else }}
+
+        {{ $.Scratch.Set "page_number_flag" true }}
+
+      {{ end }}
+
+      <!-- Output page numbers. -->
+      {{ if eq ($.Scratch.Get "page_number_flag") true }}
+        <li class="page-item{{ if eq . $paginator }} active{{ end }}">
+          <a href="{{ .URL }}">{{ .PageNumber }}</a>
+        </li>
+      {{ end }}
+
+    {{ end }}
+
+  </ul>
+</div>
+{{ end }}
