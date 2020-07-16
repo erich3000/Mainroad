@@ -4,41 +4,41 @@
 {{ $paginator := .Paginator }}
 {{ $index := 1 }}
 
-{{ if or (.Paginator.HasPrev) (.Paginator.HasNext) }}
+{{ if or ($paginator.HasPrev) ($paginator.HasNext) }}
 
 	<div class="pagination">
 
-		{{- if $use_first_and_last_item  }}
+		{{if $use_first_and_last_item}}
 
-			{{- if gt .Paginator.PageNumber 1 }}
+			{{if gt $paginator.PageNumber 1 }}
 				<a class="pagination__item pagination__item--first btn" href="{{ .Paginator.First.URL }}">««</a>
-			{{- else }}
-				{{- if $show_disabled_items }}
+			{{else}}
+				{{if $show_disabled_items }}
 					<span class="pagination__item pagination__item--first disabled">««</span>
-				{{- end }}
-			{{- end }}
-		{{- end }}
+				{{end}}
+			{{end }}
+		{{end}}
 
-		{{- if .Paginator.HasPrev }}
+		{{if $paginator.HasPrev}}
 			<a class="pagination__item pagination__item--prev btn" href="{{ .Paginator.Prev.URL }}">«</a>
-		{{- else }}
-			{{- if $show_disabled_items }}
+		{{else}}
+			{{if $show_disabled_items }}
 				<span class="pagination__item pagination__item--prev disabled">«</span>
-			{{- end }}
-		{{- end }}
+			{{end }}
+		{{end}}
 
 
-		{{- if $use_complex_pagination }}
+		{{if $use_complex_pagination }}
 
 				<span class="pagination__item pagination__item--current">
-					{{- .Paginator.PageNumber }}/{{ .Paginator.TotalPages -}}
+					{{- $paginator.PageNumber }}/{{ $paginator.TotalPages -}}
 				</span>
 
-		{{- else }}
+		{{else }}
 			<span class="pagination__item pagination__item--current">
-				{{- .Paginator.PageNumber }}/{{ .Paginator.TotalPages -}}
+				{{- $paginator.PageNumber }}/{{ $paginator.TotalPages -}}
 			</span>
-		{{- end }}
+		{{end }}
 
 		{{- if .Paginator.HasNext }}
 			<a class="pagination__item pagination__item--next btn" href="{{ .Paginator.Next.URL }}">»</a>
